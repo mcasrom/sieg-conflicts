@@ -122,28 +122,65 @@ ENTITY_MAP = {
 }
 
 # ── SCORING ───────────────────────────────────────────────────
-SCORE_HIGH   = ["war", "invasion", "nuclear", "massacre", "genocide", "airstrike",
-                "missile strike", "chemical", "biological", "coup", "annex"]
-SCORE_MED_HI = ["attack", "killed", "dead", "casualties", "offensive", "battle",
-                "bomb", "explosion", "siege", "hostage", "troops deploy"]
-SCORE_MED    = ["conflict", "troops", "military", "sanctions", "blockade",
-                "ceasefire", "escalat", "rebel", "insurgent", "drone strike"]
-SCORE_LOW    = ["tension", "protest", "crisis", "diplomat", "negotiat",
-                "alliance", "threat", "warning", "concern", "disputed"]
+# Palabras que ANULAN el score alto — contexto no bélico
+SCORE_NEGATORS = [
+    "election", "vote", "ballot", "poll", "mayor", "municipal",
+    "court", "trial", "jury", "lawsuit", "legal", "judge",
+    "sport", "football", "soccer", "tennis", "olympic",
+    "music", "concert", "festival", "film", "movie", "actor",
+    "stock", "market", "economy", "gdp", "inflation", "rate",
+]
 
-def calc_score(text: str) -> int:
-    t = text.lower()
-    if any(k in t for k in SCORE_HIGH):   return 5
-    if any(k in t for k in SCORE_MED_HI): return 4
-    if any(k in t for k in SCORE_MED):    return 3
-    if any(k in t for k in SCORE_LOW):    return 2
-    return 1
+# Contextos de guerra activa — amplifican el score base
+WAR_ZONES = [
+    "ukraine", "gaza", "sudan", "yemen", "syria", "mali",
+    "sahel", "myanmar", "somalia", "afghanistan", "nagorno",
+    "west bank", "donetsk", "kharkiv", "zaporizhzhia",
+]
+
+SCORE_HIGH   = ["war", "invasion", "nuclear", "massacre", "genocide", "airstrike",
+                "missile strike", "chemical weapon", "biological weapon", "annex",
+                "bombing campaign", "ground offensive", "total war"]
+SCORE_MED_HI = ["killed", "dead", "casualties", "wounded", "airstrike",
+                "drone strike", "rocket attack", "mortar", "shelling",
+                "bomb explod", "explosion kill", "siege", "hostage",
+                "troops killed", "soldiers dead", "civilian dead"]
+SCORE_MED    = ["attack", "offensive", "conflict", "troops", "military operation",
+                "sanctions", "blockade", "escalat", "rebel", "insurgent",
+                "ceasefire", "coup", "missile", "artillery"]
+SCORE_LOW    = ["tension", "protest", "crisis", "diplomat", "negotiat",
+                "alliance", "threat", "warning", "concern", "disputed",
+                "battle", "fight", "struggle"]  # battle/fight aquí — muy ambiguos
+
+def calc_score(title: str, summary: str = "") -> int:
+    text = (title + " " + summary).lower()
+
+    # Si el contexto es claramente no bélico → score máximo 2
+    negator_hits = sum(1 for n in SCORE_NEGATORS if n in text)
+    war_hits     = sum(1 for w in WAR_ZONES if w in text)
+    if negator_hits > 0 and war_hits == 0:
+        # Contexto civil/político sin zona de guerra → cap en 2
+        return 2 if any(k in text for k in SCORE_LOW + SCORE_MED) else 1
+
+    # Score base por keywords
+    if any(k in text for k in SCORE_HIGH):   base = 5
+    elif any(k in text for k in SCORE_MED_HI): base = 4
+    elif any(k in text for k in SCORE_MED):    base = 3
+    elif any(k in text for k in SCORE_LOW):    base = 2
+    else: base = 1
+
+    # Bonus por zona de guerra activa confirmada
+    if war_hits > 0 and base >= 2:
+        base = min(base + 1, 5)
+
+    return base
 
 # ── CATEGORIZACIÓN ────────────────────────────────────────────
 CAT_KEYS = {
     "Militar":      ["war", "troops", "military", "army", "navy", "airstrike",
-                     "missile", "bomb", "battle", "offensive", "soldier",
-                     "weapon", "drone", "artillery", "combat", "invasion"],
+                     "missile", "bomb", "offensive", "soldier", "shelling",
+                     "weapon", "drone strike", "artillery", "combat", "invasion",
+                     "rocket attack", "ground assault", "bombing", "warplane"],
     "Energético":   ["oil", "gas", "pipeline", "energy", "uranium", "nuclear plant",
                      "lithium", "mineral", "strait", "shipping", "fuel", "refinery"],
     "Diplomático":  ["sanction", "treaty", "alliance", "diplomat", "negotiat",
@@ -154,9 +191,11 @@ CAT_KEYS = {
                      "massacre", "genocide", "war crime"],
     "Cibernético":  ["cyber", "hack", "ransomware", "disinform", "propaganda",
                      "intelligence", "spy", "surveillance", "leak", "breach"],
-    "Político":     ["coup", "election", "protest", "revolt", "uprising",
-                     "government", "president", "minister", "parliament",
-                     "constitution", "sovereignty", "referendum"],
+    "Político":     ["coup", "election", "vote", "ballot", "protest", "revolt",
+                     "uprising", "government", "president", "minister", "parliament",
+                     "constitution", "sovereignty", "referendum", "mayor", "municipal",
+                     "rally", "demonstration", "campaign", "political", "law", "court",
+                     "battle to hold", "socialists", "conservatives", "opposition"],
 }
 
 def categorize(text: str) -> str:
@@ -197,7 +236,7 @@ for n in news:
         # como "Unknown" para que el dashboard pueda filtrarlo si se desea
 
     coords = add_coords(pais)
-    score    = calc_score(title + " " + summary)
+    score    = calc_score(title, summary)
     categoria = categorize(title + " " + summary)
 
     rows.append({
@@ -226,7 +265,13 @@ if os.path.exists(HIST_FILE):
 else:
     hist_df = df.copy()
 
+# Retención máxima 30 días (~47k filas/mes controladas)
+hist_df["timestamp"] = pd.to_datetime(hist_df["timestamp"], errors="coerce")
+cutoff = datetime.now() - pd.Timedelta(days=30)
+hist_df = hist_df[hist_df["timestamp"] > cutoff]
+
 hist_df.to_csv(HIST_FILE, index=False)
+print(f"  → Histórico             : {len(hist_df)} registros (últimos 30 días)")
 
 # ── STATS ─────────────────────────────────────────────────────
 known   = len(df[df["pais"] != "Unknown"])
