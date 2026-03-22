@@ -1,0 +1,84 @@
+============================================================
+SIEG — Sistema de Inteligencia Estratégica Global
+WAY AHEAD · Hoja de ruta de mejoras
+Fecha: 2026-03-22
+© M. Castillo · mybloogingnotes@gmail.com
+============================================================
+
+ESTADO ACTUAL (2026-03-22)
+─────────────────────────────────────────────────────────
+- Dashboard v2.0 operativo en Odroid C2 / DietPi
+- Pipeline cron cada hora: scraper → processor → CSV
+- 65 noticias/ciclo, ~60 con país identificado
+- 5 feeds activos: BBC, DW, Sky News, Al Jazeera, Reuters
+- GitHub: github.com/mcasrom/sieg-conflicts (main)
+- Scoring 1-5 por keywords, 6 categorías
+- Mapa interactivo, KPIs, alianzas, energía, tendencias
+- history.csv con retención 30 días
+- Log con rotación a 5000 líneas
+
+============================================================
+LÍNEA 1 — NLP & SENTIMIENTO
+─────────────────────────────────────────────────────────
+[ ] Integrar PlanTL-GOB-ES/roberta-base-bne-sentiment
+    en processor.py (token HuggingFace ya configurado)
+[ ] Añadir campo 'sentiment' (positivo/negativo/neutro)
+    y 'sentiment_score' (float) al CSV
+[ ] Sustituir scoring por keywords por scoring semántico
+[ ] Gráfico evolución de sentimiento por país en el
+    tab Tendencias del dashboard
+[ ] Alertas automáticas cuando sentimiento de un país
+    empeora X% en las últimas 24h → Telegram
+
+============================================================
+LÍNEA 2 — GEOPOLÍTICA AVANZADA
+─────────────────────────────────────────────────────────
+[ ] Correlación entre conflictos simultáneos
+    (ej: si sube Irán, ¿qué pasa con Israel/Yemen?)
+[ ] Índice de contagio — qué conflictos se amplifican
+    mutuamente y con qué retardo temporal
+[ ] Predicción de escalada — modelo basado en
+    histórico + sentimiento + frecuencia de menciones
+[ ] Cruce de actores/narrativas con Narrative Radar
+    (C.M.N.E.) para detectar desinformación geopolítica
+
+============================================================
+LÍNEA 3 — UI / SEO / MONETIZACIÓN
+─────────────────────────────────────────────────────────
+[ ] Favicon personalizado SIEG
+[ ] Meta tags SEO (og:title, og:image, og:description)
+    para preview en redes sociales
+[ ] Integración Ko-fi en el dashboard
+    (ko-fi.com/m_castillo)
+[ ] Mapa con burbujas coloreadas por sentimiento
+    (además del score actual)
+[ ] Watermark / preview para contenido premium
+
+============================================================
+LÍNEA 4 — FUENTES EN ESPAÑOL
+─────────────────────────────────────────────────────────
+[ ] Añadir feeds en español al scraper:
+    - EFE:   https://www.efe.com/efe/espana/rss
+    - RTVE:  https://www.rtve.es/api/programas.rss
+    - El País: https://feeds.elpais.com/mrss-s/pages/ep/site/elpais.com/portada
+[ ] Adaptar ENTITY_MAP y keywords al español
+[ ] Campo 'idioma' en el CSV para separar análisis
+    ES vs EN si fuera necesario
+
+============================================================
+LÍNEA 5 — TELEGRAM BOT
+─────────────────────────────────────────────────────────
+[ ] Bot Telegram con briefing diario automático
+    top 5 conflictos + sentimiento + mapa estático
+[ ] Alerta inmediata si score país > umbral crítico
+[ ] Integración con pipeline cron existente
+
+============================================================
+NOTAS TÉCNICAS
+─────────────────────────────────────────────────────────
+- Odroid C2 / DietPi / Python 3.13 / venv
+- Streamlit desplegado en local :8501
+- Próximo despliegue: Streamlit Cloud
+  (requiere repo público + secrets configurados)
+- Segunda instancia en misma Odroid: España Vota 2026
+============================================================
