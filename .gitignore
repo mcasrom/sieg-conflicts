@@ -1,0 +1,4 @@
+venv/
+logs/
+data/raw/
+*.pyc
