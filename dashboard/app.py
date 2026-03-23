@@ -279,7 +279,7 @@ body::after {
 )
 
 # ── CONSTANTS ─────────────────────────────────────────────────
-DATA_FILE = os.path.expanduser("~/SIEG-Conflicts/data/processed/conflicts.csv")
+DATA_FILE = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data", "processed", "conflicts.csv")
 NOW = datetime.datetime.utcnow()
 
 ALLIANCE_MAP = {
