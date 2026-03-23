@@ -251,6 +251,56 @@ for n in news:
         "categoria": categoria,
     })
 
+
+# ── SENTIMIENTO roberta-bne (HuggingFace Inference API) ───────
+import requests as _requests
+
+_HF_API = "https://api-inference.huggingface.co/models/PlanTL-GOB-ES/roberta-base-bne-sentiment"
+_HF_TOKEN_FILE = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "config", "hf_token.txt")
+
+def _load_hf_token():
+    try:
+        with open(_HF_TOKEN_FILE) as f:
+            return f.read().strip()
+    except:
+        return None
+
+def get_sentiment(text: str, token: str) -> tuple:
+    if not token:
+        return "NEU", 0.0
+    try:
+        r = _requests.post(
+            _HF_API,
+            headers={"Authorization": f"Bearer {token}"},
+            json={"inputs": text[:512]},
+            timeout=15
+        )
+        result = r.json()
+        if isinstance(result, list) and result:
+            best = max(result[0], key=lambda x: x["score"])
+            return best["label"], round(best["score"], 3)
+    except Exception as e:
+        print(f"  [SENTIMENT] Error: {e}")
+    return "NEU", 0.0
+
+
+# ── APLICAR SENTIMIENTO ───────────────────────────────────────
+_hf_token = _load_hf_token()
+if _hf_token:
+    print(f"[PROCESSOR] Analizando sentimiento ({len(rows)} noticias)...")
+    for i, row in enumerate(rows):
+        text = f"{row.get('title','')} {row.get('summary','')}"
+        label, score = get_sentiment(text, _hf_token)
+        row["sentiment"]       = label
+        row["sentiment_score"] = score
+        if i % 10 == 0:
+            print(f"  → {i+1}/{len(rows)} procesadas...")
+else:
+    print("[PROCESSOR] Token HF no encontrado — sentiment=NEU")
+    for row in rows:
+        row["sentiment"]       = "NEU"
+        row["sentiment_score"] = 0.0
+
 df = pd.DataFrame(rows)
 
 # ── GUARDAR PROCESADO ─────────────────────────────────────────
@@ -281,3 +331,5 @@ print(f"  → Con país identificado : {known}")
 print(f"  → Unknown               : {unknown_count}")
 print(f"  → Categorías            : {cats}")
 print(f"  → Guardado en           : {OUT_FILE}")
+
+# ── SENTIMIENTO HuggingFace roberta-bne ───────────────────────
