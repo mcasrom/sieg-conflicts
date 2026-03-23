@@ -280,7 +280,7 @@ body::after {
 
 # ── CONSTANTS ─────────────────────────────────────────────────
 DATA_FILE = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data", "processed", "conflicts.csv")
-NOW = datetime.datetime.utcnow()
+NOW = datetime.datetime.now(datetime.UTC)
 
 ALLIANCE_MAP = {
     "USA": ["nato", "eu"], "France": ["nato", "eu"], "Germany": ["nato", "eu"],
@@ -518,7 +518,7 @@ with tabs[0]:
     map_col, detail_col = st.columns([3, 1])
 
     with map_col:
-        fig_map = px.scatter_mapbox(
+        fig_map = px.scatter_map(
             dff,
             lat="lat", lon="lon",
             hover_name="title",
@@ -543,7 +543,7 @@ with tabs[0]:
             ),
             height=520,
         )
-        st.plotly_chart(fig_map, use_container_width=True)
+        st.plotly_chart(fig_map, width="stretch")
 
     with detail_col:
         st.markdown("**Top 10 puntos calientes**")
@@ -566,7 +566,7 @@ with tabs[0]:
 
     # Heatmap por región
     st.markdown('<div class="section-title">🔥 MAPA DE CALOR — DENSIDAD DE CONFLICTOS</div>', unsafe_allow_html=True)
-    fig_heat = go.Figure(go.Densitymapbox(
+    fig_heat = go.Figure(go.Densitymap(
         lat=dff["lat"], lon=dff["lon"],
         z=dff["score"], radius=40,
         colorscale="Hot", showscale=True,
@@ -579,7 +579,7 @@ with tabs[0]:
         paper_bgcolor="rgba(0,0,0,0)",
         height=380,
     )
-    st.plotly_chart(fig_heat, use_container_width=True)
+    st.plotly_chart(fig_heat, width="stretch")
 
 
 # ── TAB 2 — RIESGO POR PAÍS ───────────────────────────────────
@@ -621,7 +621,7 @@ with tabs[1]:
             margin=dict(l=0, r=0, t=20, b=60),
             height=400,
         )
-        st.plotly_chart(fig_bar, use_container_width=True)
+        st.plotly_chart(fig_bar, width="stretch")
 
     with right:
         # Radar chart — top 6
@@ -647,7 +647,7 @@ with tabs[1]:
             margin=dict(l=10, r=10, t=30, b=10),
             height=400,
         )
-        st.plotly_chart(fig_radar, use_container_width=True)
+        st.plotly_chart(fig_radar, width="stretch")
 
     # Tabla enriquecida
     st.markdown('<div class="section-title">📋 TABLA DE RIESGO DETALLADA</div>', unsafe_allow_html=True)
@@ -671,7 +671,7 @@ with tabs[1]:
         })
     st.dataframe(
         pd.DataFrame(table_rows),
-        use_container_width=True,
+        width="stretch",
         hide_index=True,
     )
 
@@ -725,7 +725,7 @@ with tabs[2]:
         yaxis=dict(showgrid=True, gridcolor="#0d3b55"),
         margin=dict(l=0, r=0, t=20, b=20), height=300,
     )
-    st.plotly_chart(fig_bloc, use_container_width=True)
+    st.plotly_chart(fig_bloc, width="stretch")
 
     # Tabla alianzas
     st.markdown('<div class="section-title">🗃️ MAPA DE ALIANZAS POR PAÍS</div>', unsafe_allow_html=True)
@@ -803,7 +803,7 @@ with tabs[3]:
         yaxis=dict(title="Relevancia Energética (0-10)", showgrid=True, gridcolor="#0d3b55"),
         margin=dict(l=20, r=20, t=20, b=40), height=420,
     )
-    st.plotly_chart(fig_bubble, use_container_width=True)
+    st.plotly_chart(fig_bubble, width="stretch")
 
     # Progress bars
     st.markdown('<div class="section-title">📊 RANKING RIESGO ENERGÉTICO CONSOLIDADO</div>', unsafe_allow_html=True)
@@ -843,7 +843,7 @@ with tabs[4]:
 
     cols_n = ["timestamp", "pais", "title", "summary", "score", "source"]
     cols_n = [c for c in cols_n if c in news_df.columns]
-    st.dataframe(news_df[cols_n], use_container_width=True, hide_index=True)
+    st.dataframe(news_df[cols_n], width="stretch", hide_index=True)
 
     # Source distribution
     st.markdown('<div class="section-title">📡 DISTRIBUCIÓN POR FUENTE</div>', unsafe_allow_html=True)
@@ -862,7 +862,7 @@ with tabs[4]:
             legend=dict(bgcolor="rgba(7,21,35,0.7)", bordercolor="#0d3b55"),
             margin=dict(l=0, r=0, t=20, b=0), height=320,
         )
-        st.plotly_chart(fig_src, use_container_width=True)
+        st.plotly_chart(fig_src, width="stretch")
 
 
 # ── TAB 6 — TENDENCIAS ────────────────────────────────────────
@@ -903,7 +903,7 @@ with tabs[5]:
             yaxis2=dict(showgrid=True, gridcolor="#0d3b55"),
             margin=dict(l=0, r=0, t=20, b=20), height=480,
         )
-        st.plotly_chart(fig_time, use_container_width=True)
+        st.plotly_chart(fig_time, width="stretch")
 
         # Top categorías en tiempo
         if "categoria" in dff.columns:
@@ -917,7 +917,7 @@ with tabs[5]:
                 legend=dict(bgcolor="rgba(7,21,35,0.7)", bordercolor="#0d3b55"),
                 margin=dict(l=0, r=0, t=20, b=20), height=300,
             )
-            st.plotly_chart(fig_cat, use_container_width=True)
+            st.plotly_chart(fig_cat, width="stretch")
     else:
         st.markdown('<div class="alert-box">⚠ No hay datos temporales disponibles (columna timestamp ausente o vacía)</div>', unsafe_allow_html=True)
 
