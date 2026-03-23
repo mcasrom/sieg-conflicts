@@ -420,7 +420,7 @@ with st.sidebar:
 
     all_countries = sorted(df["pais"].dropna().unique().tolist())
     sel_countries = st.multiselect(
-        "🌐 Países", all_countries, default=all_countries
+        "🌐 Países", all_countries, default=all_countries[:10] if len(all_countries) > 10 else all_countries
     )
 
     score_range = st.slider(
@@ -557,10 +557,10 @@ with tabs[0]:
         for _, row in top10.iterrows():
             cls = risk_class(row["score"])
             st.markdown(
-                f'<div style="padding:0.3rem 0;border-bottom:1px solid #0d3b55;font-size:0.78rem;">'
-                f'<span class="{cls}">{row["nivel"]}</span> &nbsp;'
-                f'<b style="color:#fff">{row["pais"]}</b>'
-                f'<span style="color:#5a8099;float:right;font-family:\'Share Tech Mono\',monospace">{int(row["score"])}</span></div>',
+                f'<div style="padding:0.3rem 0;border-bottom:1px solid #0d3b55;font-size:0.78rem;">' +
+                f'<span class="{cls}">{row["nivel"]}</span> &nbsp;' +
+                f'<b style="color:#fff">{row["pais"]}</b>' +
+                f'<span style="color:#5a8099;float:right;font-family:Share Tech Mono,monospace">{int(row["score"])} ({int(row["eventos"])} ev.)</span></div>',
                 unsafe_allow_html=True,
             )
 
