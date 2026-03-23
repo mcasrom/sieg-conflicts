@@ -5,4 +5,4 @@ pycountry==23.12.11
 pandas==2.2.2
 numpy==1.26.4
 plotly==5.22.0
-pillow==10.4.0
+pillow==11.1.0
