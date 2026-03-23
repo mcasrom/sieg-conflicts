@@ -529,7 +529,7 @@ with tabs[0]:
             zoom=1,
             center={"lat": 25, "lon": 15},
             color_continuous_scale=["#00e676", "#ffa500", "#ff4040"],
-            mapbox_style="carto-darkmatter",
+            map_style="carto-darkmatter",
         )
         fig_map.update_layout(
             margin=dict(l=0, r=0, t=0, b=0),
@@ -573,7 +573,7 @@ with tabs[0]:
         hoverinfo="skip",
     ))
     fig_heat.update_layout(
-        mapbox_style="carto-darkmatter",
+        map_style="carto-darkmatter",
         mapbox_zoom=1, mapbox_center={"lat": 20, "lon": 10},
         margin=dict(l=0, r=0, t=0, b=0),
         paper_bgcolor="rgba(0,0,0,0)",
