@@ -1,8 +1,8 @@
 requests==2.32.3
 feedparser==6.0.11
-streamlit==1.42.0
+streamlit>=1.42.0
 pycountry==23.12.11
-pandas==2.2.3
-numpy==2.2.4
-plotly==6.0.1
-pillow==11.2.1
+pandas>=2.2.0
+numpy>=1.26.0
+plotly>=5.22.0
+pillow>=10.0.0
