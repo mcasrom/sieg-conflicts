@@ -475,10 +475,10 @@ _layout = dict(
     plot_bgcolor="rgba(15,26,15,0.7)",
     paper_bgcolor="rgba(0,0,0,0)",
     font=dict(color="#c8ffc8", family="Courier New"),
-    xaxis=dict(showgrid=True, gridcolor="#1a3a1a"),
-    yaxis=dict(showgrid=True, gridcolor="#1a3a1a"),
     legend=dict(bgcolor="rgba(15,26,15,0.8)", bordercolor="#1a3a1a"),
 )
+# Eje por defecto reutilizable (no va en _layout para evitar colisión con overrides)
+_axis = dict(showgrid=True, gridcolor="#1a3a1a")
 
 # ── TAB 1 — MAPA ──────────────────────────────────────────────
 with tabs[0]:
@@ -583,6 +583,7 @@ with tabs[1]:
         fig_bar.update_layout(
             **_layout,
             xaxis=dict(showgrid=False, tickangle=-35, tickfont=dict(size=10), gridcolor="#1a3a1a"),
+            yaxis=_axis,
             margin=dict(l=0, r=0, t=20, b=60),
             height=400,
         )
@@ -678,6 +679,7 @@ with tabs[2]:
     fig_bloc.update_layout(
         **_layout,
         xaxis=dict(showgrid=False, gridcolor="#1a3a1a"),
+        yaxis=_axis,
         margin=dict(l=0, r=0, t=20, b=20), height=300,
     )
     st.plotly_chart(fig_bloc, width="stretch")
@@ -752,7 +754,8 @@ with tabs[3]:
         **_layout,
         xaxis=dict(title="Score de Conflicto", showgrid=True, gridcolor="#1a3a1a"),
         yaxis=dict(title="Relevancia Energética (0-10)", showgrid=True, gridcolor="#1a3a1a"),
-        margin=dict(l=20, r=20, t=20, b=40), height=420,
+        margin=dict(l=20, r=20, t=20, b=40),
+        height=420,
     )
     st.plotly_chart(fig_bubble, width="stretch")
 
@@ -845,6 +848,8 @@ with tabs[5]:
 
         fig_time.update_layout(
             **_layout,
+            xaxis=_axis,
+            yaxis=_axis,
             xaxis2=dict(showgrid=False, gridcolor="#1a3a1a"),
             margin=dict(l=0, r=0, t=20, b=20), height=480,
         )
@@ -857,6 +862,8 @@ with tabs[5]:
                               color_discrete_sequence=["#00ff41","#00cc33","#ffa500","#ff4040","#4a7a4a"])
             fig_cat.update_layout(
                 **_layout,
+                xaxis=_axis,
+                yaxis=_axis,
                 margin=dict(l=0, r=0, t=20, b=20), height=300,
             )
             st.plotly_chart(fig_cat, width="stretch")
